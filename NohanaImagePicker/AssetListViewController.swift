@@ -53,7 +53,6 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
             setToolbarTitle(nohanaImagePickerController)
         }
         collectionView?.reloadData()
-        scrollCollectionViewToInitialPosition()
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -65,7 +64,6 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
                 self.view.frame = CGRect(x: self.view.frame.origin.x, y: self.view.frame.origin.y, width: size.width, height: size.height)
             }
             self.collectionView?.reloadData()
-            self.scrollCollectionViewToInitialPosition()
             self.view.isHidden = false
         }
     }

@@ -156,8 +156,8 @@ class AlbumListViewController: UITableViewController, EmptyIndicatable, Activity
             )
             let albumCount = albumList.count
             if albumCount > 0 {
-                let lastAsset = albumList[albumCount - 1]
-                lastAsset.image(targetSize: imageSize, handler: { (imageData) -> Void in
+                let firstAsset = albumList.first
+                firstAsset?.image(targetSize: imageSize, handler: { (imageData) -> Void in
                     DispatchQueue.main.async(execute: { () -> Void in
                         if let imageData = imageData {
                             if cell.tag == indexPath.row {
@@ -190,10 +190,11 @@ class AlbumListViewController: UITableViewController, EmptyIndicatable, Activity
                 shouldShowEmptyAlbum: nohanaImagePickerController!.shouldShowEmptyAlbum,
                 handler: { () -> Void in
                     DispatchQueue.main.async(execute: { [weak momentViewController] in
+                        momentViewController?.totalSectionsCount = momentViewController?.momentAlbumList.totalSectionsCountForMoments()
+                        momentViewController?.momentAlbumList.limit = 20
                         momentViewController?.isLoading = false
                         momentViewController?.collectionView?.reloadData()
                         momentViewController?.isFirstAppearance = true
-                        momentViewController?.scrollCollectionViewToInitialPosition()
                     })
             })
         case .albums:

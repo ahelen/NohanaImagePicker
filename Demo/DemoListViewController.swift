@@ -126,14 +126,23 @@ class DemoListViewController: UITableViewController, NohanaImagePickerController
     }
 
     @objc func showCustomUIPicker() {
-        let picker = NohanaImagePickerController()
+//        let picker = NohanaImagePickerController()
+//        picker.delegate = self
+//        picker.config.color.background = UIColor(red: 0xcc/0xff, green: 0xff/0xff, blue: 0xff/0xff, alpha: 1)
+//        picker.config.color.separator = UIColor(red: 0x00/0xff, green: 0x66/0xff, blue: 0x66/0xff, alpha: 1)
+//        picker.config.strings.albumListTitle = "🏞"
+//        picker.config.image.droppedSmall = UIImage(named: "btn_select_m")
+//        picker.config.image.pickedSmall = UIImage(named: "btn_selected_m")
+//        present(picker, animated: true, completion: nil)
+        
+        let picker = CustomImagePicker()
+        picker.maxSelection = 20
+        picker.allowedSelection = 20
+        picker.selectedCount = 0
+        picker.setCountToUserSettings()
         picker.delegate = self
-        picker.config.color.background = UIColor(red: 0xcc/0xff, green: 0xff/0xff, blue: 0xff/0xff, alpha: 1)
-        picker.config.color.separator = UIColor(red: 0x00/0xff, green: 0x66/0xff, blue: 0x66/0xff, alpha: 1)
-        picker.config.strings.albumListTitle = "🏞"
-        picker.config.image.droppedSmall = UIImage(named: "btn_select_m")
-        picker.config.image.pickedSmall = UIImage(named: "btn_selected_m")
-        present(picker, animated: true, completion: nil)
+        picker.modalPresentationStyle = .fullScreen
+        self.present(picker, animated: true, completion: nil)
     }
 
     // MARK: - NohanaImagePickerControllerDelegate
@@ -190,5 +199,15 @@ class DemoListViewController: UITableViewController, NohanaImagePickerController
 
     func nohanaImagePicker(_ picker: NohanaImagePickerController, assetDetailListViewController: UICollectionViewController, didChangeAssetDetailPage indexPath: IndexPath, photoKitAsset: PHAsset) {
         print("🐷\(#function)\n\tindexPath = \(indexPath)")
+    }
+}
+
+extension DemoListViewController: CustomImagePickerDelegate {
+    func selectFotos(pickedImages: [UIImage]) {
+        print("selected photos count: \(pickedImages.count)")
+    }
+    
+    func didCancel() {
+        print("canceled selection")
     }
 }

@@ -22,6 +22,8 @@ public class PhotoKitAlbumList: ItemList {
     private let assetCollectionSubtypes: [PHAssetCollectionSubtype]
     private let mediaType: MediaType
     private var shouldShowEmptyAlbum: Bool
+    var offset: Int?
+    var limit: Int?
 
     // MARK: - init
 
@@ -44,6 +46,11 @@ public class PhotoKitAlbumList: ItemList {
     open var title: String {
         return "PhotoKit"
     }
+    
+    open func totalSectionsCountForMoments() -> Int {
+        let albumListFetchResult: [PHFetchResult<PHAssetCollection>] = [PHAssetCollection.fetchAssetCollections(with: .moment, subtype: .any, options: nil)]
+        return albumListFetchResult.first?.count ?? 0
+    }
 
     open func update(_ handler:(() -> Void)?) {
         DispatchQueue.global(qos: .default).async {
@@ -52,20 +59,41 @@ public class PhotoKitAlbumList: ItemList {
                 albumListFetchResult = albumListFetchResult + [PHAssetCollection.fetchAssetCollections(with: type, subtype: .any, options: nil)]
             }
 
-            self.albumList = []
             var tmpAlbumList: [Item] = []
             let isAssetCollectionSubtypeAny = self.assetCollectionSubtypes.contains(.any)
-            for fetchResult in albumListFetchResult {
-                fetchResult.enumerateObjects({ (album, index, stop) in
-                    if self.assetCollectionSubtypes.contains(album.assetCollectionSubtype) || isAssetCollectionSubtypeAny {
-                        if self.shouldShowEmptyAlbum || PHAsset.fetchAssets(in: album, options: PhotoKitAssetList.fetchOptions(self.mediaType)).count != 0 {
-                            tmpAlbumList.append(PhotoKitAssetList(album: album, mediaType: self.mediaType))
+            
+            if self.assetCollectionTypes == [.moment] {
+                for fetchResult in albumListFetchResult {
+                    var albums: [PHAssetCollection] = []
+                    fetchResult.enumerateObjects { (album, index, stop) in
+                        albums.append(album)
+                    }
+                    albums = albums.sorted { $0.startDate!.timeIntervalSince1970 < $1.startDate!.timeIntervalSince1970 }
+                    albums.reverse()
+                    let limit = (self.offset ?? 0) + (self.limit ?? 20)
+                    let albumsByIndex = albums[(self.offset ?? 0)..<limit]
+                    for album in albumsByIndex {
+                        if self.assetCollectionSubtypes.contains(album.assetCollectionSubtype) || isAssetCollectionSubtypeAny {
+                            if self.shouldShowEmptyAlbum || PHAsset.fetchAssets(in: album, options: PhotoKitAssetList.fetchOptions(self.mediaType)).count != 0 {
+                                tmpAlbumList.append(PhotoKitAssetList(album: album, mediaType: self.mediaType))
+                            }
                         }
                     }
-                })
+                }
+            } else {
+                self.albumList = []
+                for fetchResult in albumListFetchResult {
+                    fetchResult.enumerateObjects({ (album, index, stop) in
+                        if self.assetCollectionSubtypes.contains(album.assetCollectionSubtype) || isAssetCollectionSubtypeAny {
+                            if self.shouldShowEmptyAlbum || PHAsset.fetchAssets(in: album, options: PhotoKitAssetList.fetchOptions(self.mediaType)).count != 0 {
+                                tmpAlbumList.append(PhotoKitAssetList(album: album, mediaType: self.mediaType))
+                            }
+                        }
+                    })
+                }
             }
             if self.assetCollectionTypes == [.moment] {
-                self.albumList =  tmpAlbumList.sorted { $0.date!.timeIntervalSince1970 < $1.date!.timeIntervalSince1970 }
+                self.albumList.append(contentsOf: tmpAlbumList)
             } else {
                 self.albumList =  tmpAlbumList
             }
