@@ -101,7 +101,6 @@ class MomentViewController: AssetListViewController, ActivityIndicatable {
                // load new items
                 self.momentAlbumList.offset = self.momentAlbumList.count + 1
                 self.isLoading = true
-                print("reload items ************************")
                 self.momentAlbumList.update {
                     self.isLoading = false
                     DispatchQueue.main.async {
