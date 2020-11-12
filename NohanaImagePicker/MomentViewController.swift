@@ -99,7 +99,6 @@ class MomentViewController: AssetListViewController, ActivityIndicatable {
         if indexPath.section == self.momentAlbumList.count - 1 {
             if totalSectionsCount > self.momentAlbumList.count && !self.isLoading {
                // load new items
-                self.momentAlbumList.offset = self.momentAlbumList.count + 1
                 self.isLoading = true
                 self.momentAlbumList.update {
                     self.isLoading = false
