@@ -31,6 +31,11 @@ class AssetDetailListViewController: AssetListViewController {
     override var cellSize: CGSize {
         return Size.screenRectWithoutAppBar(self).size
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        scrollCollectionViewToInitialPosition()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
