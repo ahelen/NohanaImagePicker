@@ -22,6 +22,7 @@ open class PhotoKitAssetList: ItemList {
     public let assetList: PHAssetCollection
     fileprivate var fetchResult: PHFetchResult<PHAsset>!
     var loadForAlbumGalery: Bool
+    var offset: Int = 0
     
     init(album: PHAssetCollection, mediaType: MediaType, forAlbumGalery: Bool = false) {
         self.assetList = album
@@ -42,7 +43,7 @@ open class PhotoKitAssetList: ItemList {
         return assetList.startDate
     }
 
-    class func fetchOptions(_ mediaType: MediaType, forAlbumGalery: Bool = false) -> PHFetchOptions {
+    class func fetchOptions(_ mediaType: MediaType, forAlbumGalery: Bool = false, offset: Int = 0) -> PHFetchOptions {
         let options = PHFetchOptions()
         switch mediaType {
         case .photo:
@@ -50,7 +51,11 @@ open class PhotoKitAssetList: ItemList {
             options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
             if forAlbumGalery {
                 if #available(iOS 9, *) {
-                    options.fetchLimit = 1
+                    var next = 1
+                    if offset > 0 {
+                        next = 100
+                    }
+                    options.fetchLimit = offset + next
                 }
             }
         default:
@@ -65,7 +70,8 @@ open class PhotoKitAssetList: ItemList {
     }
 
     open func update(_ handler: (() -> Void)? = nil) {
-        fetchResult = PHAsset.fetchAssets(in: assetList, options: PhotoKitAssetList.fetchOptions(mediaType, forAlbumGalery: self.loadForAlbumGalery))
+        fetchResult = PHAsset.fetchAssets(in: assetList, options: PhotoKitAssetList.fetchOptions(mediaType, forAlbumGalery: self.loadForAlbumGalery, offset: self.offset))
+        
         if let handler = handler {
             handler()
         }

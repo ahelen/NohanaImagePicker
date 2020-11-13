@@ -200,7 +200,6 @@ class AlbumListViewController: UITableViewController, EmptyIndicatable, Activity
         case .albums:
             let assetListViewController = segue.destination as! AssetListViewController
             assetListViewController.photoKitAssetList = photoKitAlbumList[tableView.indexPathForSelectedRow!.row]
-            assetListViewController.photoKitAssetList.loadForAlbumGalery = false
             assetListViewController.totalSectionsCount = assetListViewController.photoKitAssetList.getAssetTotalCount()
             assetListViewController.nohanaImagePickerController = nohanaImagePickerController
         }
