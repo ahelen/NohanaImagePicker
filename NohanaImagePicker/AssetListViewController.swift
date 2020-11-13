@@ -21,6 +21,8 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
 
     weak var nohanaImagePickerController: NohanaImagePickerController?
     var photoKitAssetList: PhotoKitAssetList!
+    var totalSectionsCount: Int!
+    var isLoading = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -129,6 +131,19 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
                 }
             })
         }
+        
+        if indexPath.row == self.photoKitAssetList.count - 1 {
+            if totalSectionsCount > self.photoKitAssetList.count && !self.isLoading {
+                self.isLoading = true
+                self.photoKitAssetList.update {
+                    self.isLoading = false
+                    DispatchQueue.main.async {
+                        collectionView.reloadData()
+                    }
+                }
+            }
+        }
+        
         return (nohanaImagePickerController.delegate?.nohanaImagePicker?(nohanaImagePickerController, assetListViewController: self, cell: cell, indexPath: indexPath, photoKitAsset: asset.originalAsset)) ?? cell
     }
 
