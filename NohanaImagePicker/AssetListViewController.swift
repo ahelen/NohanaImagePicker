@@ -21,6 +21,9 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
 
     weak var nohanaImagePickerController: NohanaImagePickerController?
     var photoKitAssetList: PhotoKitAssetList!
+    var totalSectionsCount: Int!
+    var isLoading = false
+//    var assetListItems: [PhotoKitAssetList.Item] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,7 +78,7 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
     }
 
     func scrollCollectionView(to indexPath: IndexPath) {
-        let count: Int? = photoKitAssetList?.count
+        let count: Int? = photoKitAssetList.count
         guard count != nil && count! > 0 else {
             return
         }
@@ -88,7 +91,7 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
         guard isFirstAppearance else {
             return
         }
-        let indexPath = IndexPath(item: self.photoKitAssetList.count - 1, section: 0)
+        let indexPath = IndexPath(item: photoKitAssetList.count - 1, section: 0)
         self.scrollCollectionView(to: indexPath)
         isFirstAppearance = false
     }
@@ -129,6 +132,20 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
                 }
             })
         }
+        
+        if indexPath.row == self.photoKitAssetList.count - 1 {
+            if totalSectionsCount > self.photoKitAssetList.count && !self.isLoading {
+                self.isLoading = true
+                self.photoKitAssetList.offset = self.photoKitAssetList.count
+                self.photoKitAssetList.update {
+                    self.isLoading = false
+                    DispatchQueue.main.async {
+                        collectionView.reloadData()
+                    }
+                }
+            }
+        }
+        
         return (nohanaImagePickerController.delegate?.nohanaImagePicker?(nohanaImagePickerController, assetListViewController: self, cell: cell, indexPath: indexPath, photoKitAsset: asset.originalAsset)) ?? cell
     }
 

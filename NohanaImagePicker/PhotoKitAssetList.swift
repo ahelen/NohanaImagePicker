@@ -21,10 +21,13 @@ open class PhotoKitAssetList: ItemList {
     fileprivate let mediaType: MediaType
     public let assetList: PHAssetCollection
     fileprivate var fetchResult: PHFetchResult<PHAsset>!
-
-    init(album: PHAssetCollection, mediaType: MediaType) {
+    var loadForAlbumGalery: Bool
+    var offset: Int = 0
+    
+    init(album: PHAssetCollection, mediaType: MediaType, forAlbumGalery: Bool = false) {
         self.assetList = album
         self.mediaType = mediaType
+        self.loadForAlbumGalery = forAlbumGalery
         update()
     }
 
@@ -40,20 +43,35 @@ open class PhotoKitAssetList: ItemList {
         return assetList.startDate
     }
 
-    class func fetchOptions(_ mediaType: MediaType) -> PHFetchOptions {
+    class func fetchOptions(_ mediaType: MediaType, forAlbumGalery: Bool = false, offset: Int = 0) -> PHFetchOptions {
         let options = PHFetchOptions()
         switch mediaType {
         case .photo:
             options.predicate = NSPredicate(format: "mediaType == %ld", PHAssetMediaType.image.rawValue)
             options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+            if forAlbumGalery {
+                if #available(iOS 9, *) {
+                    var next = 1
+                    if offset > 0 {
+                        next = 100
+                    }
+                    options.fetchLimit = offset + next
+                }
+            }
         default:
             fatalError("not supported .Video and .Any yet")
         }
         return options
     }
+    
+    open func getAssetTotalCount() -> Int {
+        let result = PHAsset.fetchAssets(in: assetList, options: PhotoKitAssetList.fetchOptions(mediaType))
+        return result.count
+    }
 
     open func update(_ handler: (() -> Void)? = nil) {
-        fetchResult = PHAsset.fetchAssets(in: assetList, options: PhotoKitAssetList.fetchOptions(mediaType))
+        fetchResult = PHAsset.fetchAssets(in: assetList, options: PhotoKitAssetList.fetchOptions(mediaType, forAlbumGalery: self.loadForAlbumGalery, offset: self.offset))
+        
         if let handler = handler {
             handler()
         }

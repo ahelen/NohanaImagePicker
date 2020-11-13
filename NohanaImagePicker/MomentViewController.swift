@@ -20,7 +20,6 @@ import Photos
 class MomentViewController: AssetListViewController, ActivityIndicatable {
 
     var momentAlbumList: PhotoKitAlbumList!
-    var totalSectionsCount: Int!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -98,7 +97,6 @@ class MomentViewController: AssetListViewController, ActivityIndicatable {
         
         if indexPath.section == self.momentAlbumList.count - 1 {
             if totalSectionsCount > self.momentAlbumList.count && !self.isLoading {
-               // load new items
                 self.isLoading = true
                 self.momentAlbumList.update {
                     self.isLoading = false
@@ -137,7 +135,6 @@ class MomentViewController: AssetListViewController, ActivityIndicatable {
     // MARK: - ActivityIndicatable
 
     var activityIndicator: UIActivityIndicatorView?
-    var isLoading = true
 
     func setUpActivityIndicator() {
         activityIndicator = UIActivityIndicatorView(style: .gray)
