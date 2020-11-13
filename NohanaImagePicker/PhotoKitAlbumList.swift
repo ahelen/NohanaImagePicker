@@ -70,6 +70,11 @@ public class PhotoKitAlbumList: ItemList {
                     }
                     albums = albums.sorted { $0.startDate!.timeIntervalSince1970 < $1.startDate!.timeIntervalSince1970 }
                     albums.reverse()
+                    if self.offset == nil {
+                        self.offset = 0
+                    } else {
+                        self.offset! += 20
+                    }
                     let limit = (self.offset ?? 0) + (self.limit ?? 20)
                     let albumsByIndex = albums[(self.offset ?? 0)..<limit]
                     for album in albumsByIndex {
@@ -86,7 +91,7 @@ public class PhotoKitAlbumList: ItemList {
                     fetchResult.enumerateObjects({ (album, index, stop) in
                         if self.assetCollectionSubtypes.contains(album.assetCollectionSubtype) || isAssetCollectionSubtypeAny {
                             if self.shouldShowEmptyAlbum || PHAsset.fetchAssets(in: album, options: PhotoKitAssetList.fetchOptions(self.mediaType)).count != 0 {
-                                tmpAlbumList.append(PhotoKitAssetList(album: album, mediaType: self.mediaType))
+                                tmpAlbumList.append(PhotoKitAssetList(album: album, mediaType: self.mediaType, forAlbumGalery: true))
                             }
                         }
                     })
